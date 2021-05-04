@@ -25,8 +25,18 @@ if [ ! -z "$ADVERTISED_HOST" ]; then
     sed -r -i 's/^(#)(advertised.listeners)/\2/g' $KAFKA_HOME/config/server.properties
 
     # Replace your.host.name with $ADVERTISED_HOST
-    sed -r -i "s/your.host.name/$ADVERTISED_HOST/g" $KAFKA_HOME/config/server.properties
+#    sed -r -i "s/your.host.name/$ADVERTISED_HOST/g" $KAFKA_HOME/config/server.properties
+    sed -r -i "s/PLAINTEXT:\/\/your.host.name:9092/INTERNAL:\/\/localhost:9094,EXTERNAL:\/\/$ADVERTISED_HOST:9092/g" $KAFKA_HOME/config/server.properties
+
+    sed -r -i 's/^(#)(lidosteners)/\2/g' $KAFKA_HOME/config/server.properties
+    sed -r -i "s/PLAINTEXT:\/\/:9092/INTERNAL:\/\/0.0.0.0:9094,EXTERNAL:\/\/0.0.0.0:9092/g" $KAFKA_HOME/config/server.properties
+
+    sed -r -i 's/^(#)(listener.security)/\2/g' $KAFKA_HOME/config/server.properties
+    sed -r -i "s/PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL/INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT/g" $KAFKA_HOME/config/server.properties
+
+    echo 'inter.broker.listener.name=INTERNAL' >> $KAFKA_HOME/config/server.properties
 fi
+
 if [ ! -z "$ADVERTISED_PORT" ]; then
     echo "advertised port: $ADVERTISED_PORT"
     sed -r -i "s/#(advertised.port)=(.*)/\1=$ADVERTISED_PORT/g" $KAFKA_HOME/config/server.properties
